@@ -200,7 +200,7 @@ public class Insert implements Statement {
 			listValues.add(getValuesColumnMapping(columns, expressionList));
 		}
 	} else {
-		throw new JSQLParserException("Invalid insert! No ExpressionList found!! ["+items.getClass().getName()+"]");
+		throw new JSQLParserException("Invalid insert! No ExpressionList found!! ["+itemsList.getClass().getName()+"]");
 	}
 		
 	return listValues;
