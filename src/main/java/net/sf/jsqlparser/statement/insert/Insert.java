@@ -182,37 +182,38 @@ public class Insert implements Statement {
     }
     
     /**
-     *  Obtains a List with all the INSERT values mapped by column name.
+     * Obtains a List with all the INSERT values mapped by column name.
+     * 
      */
     public List<Map<String, Expression>> getColumnValuesMapping() throws JSQLParserException {
         List<Map<String, Expression>> listValues = new ArrayList<Map<String,Expression>>();
 		
-	if ( itemsList == null ) {
-		return listValues;
-	}
+        if ( itemsList == null ) {
+        	return listValues;
+        }
 		
-	if ( itemsList instanceof ExpressionList ) {
-		listValues.add(getValuesColumnMapping(columns, (ExpressionList) itemsList));
-	} else if ( itemsList instanceof MultiExpressionList ) {
-		MultiExpressionList multiValues = (MultiExpressionList) itemsList;
-		List<ExpressionList> lists = multiValues.getExprList();
-		for (ExpressionList expressionList : lists) {
-			listValues.add(getValuesColumnMapping(columns, expressionList));
-		}
-	} else {
-		throw new JSQLParserException("Invalid insert! No ExpressionList found!! ["+itemsList.getClass().getName()+"]");
-	}
+        if ( itemsList instanceof ExpressionList ) {
+        	listValues.add(getValuesColumnMapping(columns, (ExpressionList) itemsList));
+        } else if ( itemsList instanceof MultiExpressionList ) {
+        	MultiExpressionList multiValues = (MultiExpressionList) itemsList;
+        	List<ExpressionList> lists = multiValues.getExprList();
+        	for (ExpressionList expressionList : lists) {
+        		listValues.add(getValuesColumnMapping(columns, expressionList));
+        	}
+        } else {
+        	throw new JSQLParserException("Invalid insert! No ExpressionList found!! ["+itemsList.getClass().getName()+"]");
+        }
 		
-	return listValues;
+        return listValues;
     }
     
     private Map<String, Expression> getValuesColumnMapping(List<Column> columns, ExpressionList values) {
-	List<Expression> expressions = values.getExpressions();
-	Map<String, Expression> valuesMap = new HashMap<String, Expression>();
-	for (int i = 0; i < columns.size(); i++) {
-		valuesMap.put(columns.get(i).getColumnName(), expressions.get(i));
-	}
-	return valuesMap;
+    	List<Expression> expressions = values.getExpressions();
+    	Map<String, Expression> valuesMap = new HashMap<String, Expression>();
+    	for (int i = 0; i < columns.size(); i++) {
+    		valuesMap.put(columns.get(i).getColumnName(), expressions.get(i));
+    	}
+    	return valuesMap;
     }
 
     @Override
