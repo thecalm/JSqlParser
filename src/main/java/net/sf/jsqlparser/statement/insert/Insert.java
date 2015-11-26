@@ -173,6 +173,31 @@ public class Insert implements Statement {
     public void setModifierIgnore(boolean modifierIgnore) {
         this.modifierIgnore = modifierIgnore;
     }
+    
+    /**
+     *  Obtains a List with all the INSERT values mapped by column name.
+     */
+    public List<Map<String, Expression>> getColumnValuesMapping() throws JSQLParserException {
+        List<Map<String, Expression>> listValues = new ArrayList<Map<String,Expression>>();
+		
+		if ( itemsList == null ) {
+		    return listValues;
+		}
+		
+		if ( itemsList instanceof ExpressionList ) {
+			listValues.add(getValuesColumnMapping(columns, (ExpressionList) itemsList));
+		} else if ( itemsList instanceof MultiExpressionList ) {
+			MultiExpressionList multiValues = (MultiExpressionList) itemsList;
+			List<ExpressionList> lists = multiValues.getExprList();
+			for (ExpressionList expressionList : lists) {
+				listValues.add(getValuesColumnMapping(columns, expressionList));
+			}
+		} else {
+			throw new JSQLParserException("Invalid insert! No ExpressionList found!! ["+items.getClass().getName()+"]");
+		}
+		
+		return listValues;
+    }
 
     @Override
     public String toString() {
