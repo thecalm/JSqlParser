@@ -22,6 +22,9 @@
 package net.sf.jsqlparser.statement.insert;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.ItemsList;
@@ -32,6 +35,10 @@ import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
+import net.sf.jsqlparser.expression.operators.relational.MultiExpressionList;
+
 
 /**
  * The insert statement. Every column name in <code>columnNames</code> matches
@@ -180,23 +187,32 @@ public class Insert implements Statement {
     public List<Map<String, Expression>> getColumnValuesMapping() throws JSQLParserException {
         List<Map<String, Expression>> listValues = new ArrayList<Map<String,Expression>>();
 		
-		if ( itemsList == null ) {
-		    return listValues;
-		}
-		
-		if ( itemsList instanceof ExpressionList ) {
-			listValues.add(getValuesColumnMapping(columns, (ExpressionList) itemsList));
-		} else if ( itemsList instanceof MultiExpressionList ) {
-			MultiExpressionList multiValues = (MultiExpressionList) itemsList;
-			List<ExpressionList> lists = multiValues.getExprList();
-			for (ExpressionList expressionList : lists) {
-				listValues.add(getValuesColumnMapping(columns, expressionList));
-			}
-		} else {
-			throw new JSQLParserException("Invalid insert! No ExpressionList found!! ["+items.getClass().getName()+"]");
-		}
-		
+	if ( itemsList == null ) {
 		return listValues;
+	}
+		
+	if ( itemsList instanceof ExpressionList ) {
+		listValues.add(getValuesColumnMapping(columns, (ExpressionList) itemsList));
+	} else if ( itemsList instanceof MultiExpressionList ) {
+		MultiExpressionList multiValues = (MultiExpressionList) itemsList;
+		List<ExpressionList> lists = multiValues.getExprList();
+		for (ExpressionList expressionList : lists) {
+			listValues.add(getValuesColumnMapping(columns, expressionList));
+		}
+	} else {
+		throw new JSQLParserException("Invalid insert! No ExpressionList found!! ["+items.getClass().getName()+"]");
+	}
+		
+	return listValues;
+    }
+    
+    private Map<String, Expression> getValuesColumnMapping(List<Column> columns, ExpressionList values) {
+	List<Expression> expressions = values.getExpressions();
+	Map<String, Expression> valuesMap = new HashMap<String, Expression>();
+	for (int i = 0; i < columns.size(); i++) {
+		valuesMap.put(columns.get(i).getColumnName(), expressions.get(i));
+	}
+	return valuesMap;
     }
 
     @Override
